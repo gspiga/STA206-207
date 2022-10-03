@@ -1,0 +1,111 @@
+---
+title: "Homework 1"
+author: "Gianni Spiga"
+date: "2022-10-03"
+output: html_document
+---
+
+## 7.) Simulation by R
+
+a.) 
+```{r}
+x <- seq(1, 100)
+x
+```
+b.) 
+```{r}
+w <- 2 + 0.5*x
+w
+```
+c.)
+```{r}
+set.seed(123)
+myNormDist <- rnorm(100, sd = 5)
+cat("The mean is ", mean(myNormDist), "\n")
+cat("The standard deviation is ", sd(myNormDist), "\n")
+
+library(ggplot2)
+library(plotly)
+
+Norm.df <- data.frame(myNormDist)
+
+ggplotly(ggplot(data = Norm.df, aes(x = myNormDist)) + geom_histogram(bins = 15, fill = "#8a5789"))
+```
+
+We notice that even though we create a normal distribution with defined mean and standard deviation, we observe a differing sample  mean and standard deviation. Observing our histogram, we also can see that our distribution is not perfectly symmetric. 
+
+d.)
+```{r}
+y <- myNormDist + w
+y
+```
+
+e.)
+```{r}
+Norm.df["y"] <- y
+names(Norm.df) <- c("x", "y")
+head(Norm.df)
+
+# Base size for labels is 11
+# https://ggplot2.tidyverse.org/reference/ggtheme.html
+ggplotly(ggplot(data = Norm.df, aes(x = x, y = y)) + 
+           geom_point(color = "#7eb6ff") + 
+           ggtitle("Y Versus X") + 
+           theme_grey(base_size = 11*1.5))
+
+```
+
+f.)
+```{r}
+Beta1 <-
+  sum((Norm.df[, 1] - mean(Norm.df[, 1])) * (Norm.df[, 2] - mean(Norm.df[, 2]))) / sum((Norm.df[, 1] - mean(Norm.df[, 1])) ^2)
+Beta0 <- mean(Norm.df[,2]) - Beta1 * mean(Norm.df[, 1])
+
+# Create column for predictions
+Norm.df["Ypred"] <- Beta0 + Beta1 * Norm.df["x"]
+
+
+ggplotly(ggplot(data = Norm.df, aes(x = x, y = y)) + 
+           geom_point(color = "#7eb6ff") + 
+            geom_line(data = Norm.df, aes(x = x, y = Ypred)) + 
+           ggtitle("Y Versus X") + 
+           theme_grey(base_size = 11*1.5))
+```
+
+```{r}
+Norm.df["ei"] <- Norm.df["y"] - Norm.df["Ypred"]
+
+ggplotly(ggplot(data = Norm.df, aes(x = x, y = ei)) + 
+           geom_point(color = "#75a876") + 
+           ggtitle("Residuals Versus X") + 
+           theme_grey(base_size = 11*1.5))
+
+cat("The MSE is", sum(Norm.df["ei"]^2) / (nrow(Norm.df) - 2))
+```
+
+h.)
+```{r}
+figList <- c()
+for (i in rep(1,5)) {
+  set.seed(i)
+  xLoop <- rnorm(100, sd = 5)
+  yLoop <- myNormDist + w
+  
+  Beta1Loop <-
+  sum((xLoop - mean(xLoop)) * (yLoop - mean(yLoop))) / sum((xLoop - mean(xLoop))^2)
+  Beta0Loop <- mean(yLoop) - Beta1 * mean(xLoop)
+  
+
+  Loop.df <- data.frame(xLoop, yLoop, Beta0Loop + Beta1Loop * xLoop)
+  names(Loop.df) <- c("x", "y", "Ypred")
+  
+  ggplotly(ggplot(data = Loop.df, aes(x = x, y = y)) + 
+           geom_point(color = "#7eb6ff") + 
+            geom_line(data = Loop.df, aes(x = x, y = Ypred)) + 
+           ggtitle("Y Versus X") + 
+           theme_grey(base_size = 11*1.5))
+  #figList <- c(figList, Loop.df)
+}
+
+
+```
