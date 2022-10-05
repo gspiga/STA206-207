@@ -86,7 +86,8 @@ cat("The MSE is", sum(Norm.df["ei"]^2) / (nrow(Norm.df) - 2))
 h.)
 ```{r}
 figList <- c()
-for (i in rep(1,5)) {
+plotList <- list()
+for (i in seq(1,5)) {
   set.seed(i)
   xLoop <- rnorm(100, sd = 5)
   yLoop <- myNormDist + w
@@ -99,13 +100,60 @@ for (i in rep(1,5)) {
   Loop.df <- data.frame(xLoop, yLoop, Beta0Loop + Beta1Loop * xLoop)
   names(Loop.df) <- c("x", "y", "Ypred")
   
-  ggplotly(ggplot(data = Loop.df, aes(x = x, y = y)) + 
-           geom_point(color = "#7eb6ff") + 
+  p <- ggplotly(ggplot(data = Loop.df, aes(x = x, y = y)) + 
+           geom_point(color = "#7eb6ff") +
             geom_line(data = Loop.df, aes(x = x, y = Ypred)) + 
            ggtitle("Y Versus X") + 
            theme_grey(base_size = 11*1.5))
+  plotList[[i]] <- p
   #figList <- c(figList, Loop.df)
 }
 
+plotList[1]
+
+for (i in 1:5) {
+  print(plotList[[i]])
+}
+```
+
+```{r}
+dfOpt <- data.frame(matrix(ncol = 3, nrow = 0))
+colnames(dfOpt) <- c("Beta0", "Beta1", "MSE")
+
+for (i in 1:1000) {
+  set.seed(i + 100)
+  xOpt <- rnorm(100, sd = 5)
+  yOpt <- myNormDist + w
+  B1opt <- sum((xOpt - mean(xOpt)) * (yOpt - mean(yOpt))) / sum((yOpt - mean(yOpt))^2)
+  B0opt <-mean(yOpt) - B1opt * mean(xOpt)
+  YpredOpt <- B0opt + B1opt * xOpt
+  MSEopt <- sum((yOpt - YpredOpt)^2) / length(xOpt) - 2
+  
+  #dfOpt <- rbind(dfOpt, c(B0opt, B1opt, MSEopt))
+  dfOpt[i,] <- c(B0opt, B1opt, MSEopt)
+  
+}
+
+head(dfOpt)
+```
+
+```{r}
+ggplotly(ggplot(data = dfOpt, aes(x = Beta0)) + geom_histogram(fill = "#4b0082"))
+
+cat("The mean of Beta0 is", mean(dfOpt[,1]), "and the variance is", var(dfOpt[,1]), ".")
+```
+
+```{r}
+ggplotly(ggplot(data = dfOpt, aes(x = Beta1)) + geom_histogram(fill = "#00824b"))
+
+cat("The mean of Beta1 is", mean(dfOpt[,2]), "and the variance is", var(dfOpt[,2]), ".")
+```
+
+```{r}
+ggplotly(ggplot(data = dfOpt, aes(x = MSE)) + geom_histogram(fill = "#824b00"))
+
+cat("The mean of MSE is", mean(dfOpt[,3]), "and the variance is", var(dfOpt[,3]), ".")
 
 ```
+
+We can see from the the simulation of a thousand samples that our distributions for both $\beta_0$ and $\beta_1$ are approximately normal, while the distribution of our MSE is strongly left skewed. The means of all estimators approach the true value (which we define by the simulation). Between the two least squares coefficients, $\beta_0$ has less spread than $\beta_1$. 
