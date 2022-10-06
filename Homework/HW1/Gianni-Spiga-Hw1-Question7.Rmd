@@ -85,8 +85,10 @@ cat("The MSE is", sum(Norm.df["ei"]^2) / (nrow(Norm.df) - 2))
 
 h.)
 ```{r}
-figList <- c()
+#Empty lists for plots
 plotList <- list()
+plotList2 <- list()
+
 for (i in seq(1,5)) {
   set.seed(i)
   xLoop <- rnorm(100, sd = 5)
@@ -100,6 +102,10 @@ for (i in seq(1,5)) {
   Loop.df <- data.frame(xLoop, yLoop, Beta0Loop + Beta1Loop * xLoop)
   names(Loop.df) <- c("x", "y", "Ypred")
   
+  #Creating residuals column
+  Loop.df["ei"] <- Loop.df["y"] - Loop.df["Ypred"]
+  
+  #Plots for y versus x 
   p <- ggplotly(ggplot(data = Loop.df, aes(x = x, y = y)) + 
            geom_point(color = "#7eb6ff") +
             geom_line(data = Loop.df, aes(x = x, y = Ypred)) + 
@@ -107,15 +113,24 @@ for (i in seq(1,5)) {
            theme_grey(base_size = 11*1.5))
   plotList[[i]] <- p
   #figList <- c(figList, Loop.df)
+  
+  #Plots for residuals versus X
+  p2 <- ggplotly(ggplot(data = Loop.df, aes(x = x, y = ei)) + 
+           geom_point(color = "#75a876") + 
+           ggtitle("Residuals Versus X") + 
+           theme_grey(base_size = 11*1.5))
+  plotList2[[i]] <- p2
 }
 
-plotList[1]
 
 for (i in 1:5) {
   print(plotList[[i]])
+  print(plotList2[[i]])
 }
 ```
 
+From the plots we can notice that the slop of the line changes between positive and negative while also being very close to zero. There is no repetitive pattern of the same observed line with each simulation. 
+i.) (Optional Problem)
 ```{r}
 dfOpt <- data.frame(matrix(ncol = 3, nrow = 0))
 colnames(dfOpt) <- c("Beta0", "Beta1", "MSE")
