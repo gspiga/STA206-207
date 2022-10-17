@@ -1,0 +1,68 @@
+---
+title: "Homework 3"
+author: "Gianni Spiga"
+date: '2022-10-15'
+output: html_document
+---
+
+## Question 1
+
+a.)
+```{r}
+library(ggplot2)
+library(plotly)
+```
+
+```{r}
+muscle <- read.table("muscle.txt")
+colnames(muscle) <- c("mass", "age")
+head(muscle, 10)
+
+ggplotly(ggplot(muscle, aes(x = mass)) + geom_histogram(bins =15, fill = "#FF6347"))
+ggplotly(ggplot(muscle, aes(x = age)) + geom_histogram(bins = 15, fill = "#FFA07A"))
+```
+We can see from the plots that mass has a slight skew to the right while the age histrogram has a strong right skew.
+
+```{r}
+ggplotly(ggplot(muscle, aes(x = age, y= mass)) + geom_point(color = "#FFC300"))
+```
+
+We can see that from the scatter plot that the data seems to have a negative linear relationship. 
+
+b.)
+```{r}
+library(MASS)
+bxcx <- boxcox(mass ~ age, data = muscle)
+lambda <- bxcx$x[which.max(bxcx$y)]
+lambda
+```
+
+Since our Box Cox 95% confidence interval contains 1, we can conclude that a transformation of our variable is unneccessary. 
+
+c.)  
+```{r}
+#Build the model
+modelMM <- lm(mass ~ age, data = muscle)
+sumModelMM <- summary(modelMM)
+
+# Coefficients and their standard errors
+sumModelMM$coefficients
+
+# MSE
+MSE <- sum(sumModelMM$residuals^2) / (nrow(muscle) - 2)
+MSE
+
+# Degrees of Freedom for MSE
+sumModelMM$df[2]
+```
+
+d.) The regression line for the data is the following:
+$$
+\hat{Y_i} = 156.347 - 1.190X_i
+$$
+
+```{r}
+
+
+
+```
