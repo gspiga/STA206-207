@@ -179,4 +179,18 @@ $$
 
 We reject $H_0$ if $T^* > t(1 - \alpha/2, n-p)$.
 
-Thankfully, the summary of our model does this test for us with the p-values. For 
+Thankfully, the summary of our model does this test for us with the p-values. For the intercept, age, operational expenses, and square footage with respective p-values (< 2e-16, 3.89e-09, 2.75e-05, 1.98e-07), we reject $H_0$, concluding that the coefficients are significantly diffrerent than 0. However, for our Vacancy Rate, with p-value 0.57, we fail to reject $H_0$, leading us to conclude that Vacancy Rate does not help us predict Rental Rates. ALl other variables we conclude are useful in modeling Rental Rates. 
+
+2g.) 
+```{r}
+anova(model1)
+```
+
+$$
+SSE = 98.231 \\
+df(SSE) = 76 \\
+SSR = 14.819 + 72.802 + 8.381 + 42.325 = 138.327\\
+df(SSR) = 4\\
+SSTO = 98.231 + 138.327 = 236.558\\
+df(SSTO) = 80
+$$
