@@ -100,7 +100,7 @@ model1$coefficients
 ```
 The fitted regression function: 
 $$
-Y_i = 12.220 - 0.142 X_{i1} + 0.282X_{i2} + 0.619X_{i3} + 7.924e-06X_{i4}
+Y_i = 12.220 - 0.142 X_{i1} + 0.282X_{i2} + 0.619X_{i3} + 7.924e^{-06}X_{i4}
 $$
 
 The $R^2$ for the model is $0.5847$ and the $R^2_{adj}$ is $0.5629$. 
@@ -194,3 +194,87 @@ df(SSR) = 4\\
 SSTO = 98.231 + 138.327 = 236.558\\
 df(SSTO) = 80
 $$
+
+We test the hypothesis for the regrssion relation:
+
+$$
+H_0: \beta_1 = \dots = \beta_{p-1} = 0 \\
+H_a: \text{Not all}\ \beta_ks \ \text{equal to zero}
+$$
+
+$$
+F^* = \frac{MSR}{MSE} \\
+F^* \sim_{H_0} F_{(p-1, n-p)}
+$$
+
+We reject $H_0$ if $F^* > F(1 - \alpha, p-1, n-p)$.
+
+```{r}
+Fstar <- (138.327 / 4) / (98.231 / 76)
+Fstar
+
+pf(Fstar, 4, 76, lower.tail = FALSE)
+```
+
+Since our p-value is much smaller than our $\alpha = 0.01$, we reject our null hypothesis. We can conclude that not all the $\beta_ks$ equal zero. 
+
+h.) 
+```{r}
+model2 <- lm(Ren.Rate ~ Age + Exp + Sq.Foot, data = property)
+model2$coefficients
+```
+The fitted regression function for model2: 
+$$
+Y_i = 12.37 - 0.144 X_{i1} + 0.267X_{i2} + 8.178e^{-06}X_{i4}
+$$
+
+We would decide to make an new model without for $X_3$ since we concluded in part f that $X_3$ was not significant to the modeling of rental rates. 
+
+```{r}
+summary(model2)
+anova(model2)
+```
+The value of $R^2 = 0.583$ and the $R^2_{adj} = 0.5667$. The $MSE = 1.281$. 
+
+i.) 
+```{r}
+sumModel1 <- summary(model1)
+sumModel2 <- summary(model2)
+
+# Print the std errors 
+sumModel1$coefficients[,2]
+sumModel2$coefficients[,2]
+```
+
+We can see that the std. error of the coefficients are smaller for each coefficient. If we had constructed intervals for model 1 with the larger standard errors, we would have found the intervals to be wider than the intervals made for model 2.
+
+```{r}
+tval <- qt(1 - (0.01/2), nrow(property) - 4)
+
+#confidence intervals 
+t(
+  rbind(
+    sumModel2$coefficients[, 1] - tval * sumModel2$coefficients[, 2],
+    sumModel2$coefficients[, 1] + tval * sumModel2$coefficients[, 2]
+  )
+)
+```
+
+j.) 
+```{r}
+# Prediction for model 1
+predict(model1, data.frame(Age = 4, Exp = 10, Vac.Rate = 0.1, Sq.Foot = 80,000), interval = "prediction", level = 0.99)
+
+# Prediction for model 2
+predict(model2, data.frame(Age = 4, Exp = 10, Sq.Foot = 80,000), interval = "prediction", level = 0.99)
+
+# Range for interval 1
+17.60305 - 11.42732
+
+# Range for interval 2
+17.53121 - 11.40128
+```
+
+We can see that the interval for model2 is slightly more narrow than than the interval for model1. 
+
+k.) Overall, we would prefer to use model 2. We have a lower MSE, statistically signifanct predictors for every variable in the model, and higher $R^2_{adj}$ value. A model with less variables is also easier to interpret.  
