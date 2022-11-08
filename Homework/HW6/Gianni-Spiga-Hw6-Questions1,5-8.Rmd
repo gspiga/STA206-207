@@ -4,7 +4,7 @@ author: "Gianni Spiga"
 date: '2022-11-08'
 output: 
   prettydoc::html_pretty:
-    theme: architect
+    theme: leonids
     toc: TRUE
     df_print: paged
 ---
@@ -56,12 +56,43 @@ property["AgeSq"] <- property$AgeCent ^ 2
 
 polyModel <-
   lm(Ren.Rate ~ AgeCent + AgeSq + Exp + Sq.Foot, data = property)
-
+summary(polyModel)
 
 #Plotting Observations Against Fitted Values
 ggplotly(
   ggplot() + aes(x = polyModel$fitted.values, y = property$Ren.Rate) + geom_point() + labs(x = "Fitted Values", y = "Observations", title = "Observartions against Fitted Values")
 )
 ```
+We have the regression function:
+$$
+Y_i = 10.19 - 0.182X_{i1} + 0.314X_{i2} + 0.00008X_{i4} + 0.014X_{i1}^2
+$$
+We find that our model is a good fit. We have a relatively good $R^2_{adj}$ as well as fairly linear Observations against Fitted Values plot. 
 
+### c.) 
+```{r}
+# Model 2
+model2 <- lm(Ren.Rate ~ Age + Exp + Sq.Foot, data = property)
+summary(model2)
+```
 
+We find that both the $R^2$ and $R^2_{adj}$ are higher in the quadratic model than the 
+**Model 2**. The $R^2$ for **Model 2** is $0.583$ and $0.6131$ for the quadratic model. The $R^2_{adj}$ for **Model 2** is $0.5667$ and $0.5927$ for the quadratic model. This would lead us to conclude that the quadratic model is a better fit than **Model 2**. 
+
+### d.)
+To test our Beta coefficients, we have: 
+$$
+H_0: \beta_k = 0 \\
+H_a: \beta_k \neq 0
+$$
+With test statistic and null distribution:
+$$
+T^* = \frac{\hat{\beta_k}}{s(\hat{\beta_k})} \\
+T^* \sim t_{n-p}
+$$
+
+We reject $H_0$ if $T^* > t(1 - \alpha/2, n-p)$.
+
+Given that our p-value for our quadratic term is $0.0174$, we reject $H_0$ and conclude that our quadratic term is significant in the model at $\alpha = 0.05$. 
+
+### e.) 
