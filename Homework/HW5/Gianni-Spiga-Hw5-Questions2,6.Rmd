@@ -2,7 +2,11 @@
 title: "Homework 5"
 author: "Gianni Spiga"
 date: '2022-10-30'
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    df_print: paged
 ---
 
 ```{r, message=FALSE}
@@ -12,7 +16,7 @@ library(plotly)
 ```
 ## Question 2 
 
-d.) 
+### d.) 
 ```{r}
 Xh <- c(1, 0, 0, 0)
 XtXinv <-
@@ -35,7 +39,7 @@ c(0.9918 - (qt(1 - (0.05 / 2), 30 - 4) * SE.predh), 0.9918 + (qt(1 - (0.05 / 2),
 
 ## Question 6
 
-a.)
+### a.)
 ```{r}
 property <- read.table("property.txt")
 colnames(property) <-
@@ -80,14 +84,14 @@ summary(property$Sq.Foot)
 
 With our Square Footage variable, we can again see a right skew. Unlike Vacancy Rate, this skew is not as strong as it has some pull towards the center, as well as a heavier tail. 
 
-b.) 
+### b.) 
 ```{r, warning = FALSE}
 ggplotly(ggpairs(property, title = "Correlogram of Property Data"))
 ```
 
 From the plot, we can see that the variables with the highest correlation is Rental Rate and Square Footage. The variables with the smallest correlation are Rental Rate and Vacancy Rate. This makes sense, the scatter plot for Rental Rate and Square Footage has the most linear resemblence while Rental Rate and Vacancy Rate show almost no relationship. We can see that Vacancy Rate is negatively correlated with Age and Operating Expenses. 
 
-c.)
+### c.)
 
 ```{r}
 model1 <- lm(Ren.Rate ~ Age + Exp + Vac.Rate + Sq.Foot, data = property)
@@ -113,7 +117,7 @@ anova(model1)
 ```
 The ANOVA table shows us that our $MSE = 1.293$. 
 
-d.) 
+### d.) 
 ```{r}
 #Residuals vs Fitted Values
 ggplot() + aes(x = model1$fitted.values, model1$residuals) + geom_point() + labs(x = "Fitted Values", y = "Residuals", title = "Residuals vs. Fitted Values") + geom_abline(intercept = 0, slope = 0)
@@ -126,6 +130,8 @@ ggplot() + aes(x = model1$residuals) + geom_boxplot() + labs(x = "Residuals")
 ```
 
 We can see from the Residual vs Fitted Value plot that we have random scatter with no sign of a pattern, suggesting that a linear model is the best model for this data. Our Normal QQ Plot shows us that our distribution is approximately normal with signs of light tails. Our box plot shows us that our data is approximatly symmetric, with only 4 outliers in the data set. 
+
+### e.) 
 
 ```{r}
 #Residuals vs Age
@@ -166,7 +172,8 @@ We have six interaction terms. When we observe plots with interactions with Vaca
 
 In our non-interaction plots, we can see that variables Age and Vacancy Rate have clusters of data, which violates our desire for random scatter. 
 
-f.) To test our Beta coefficients, we have: 
+### f.) 
+To test our Beta coefficients, we have: 
 $$
 H_0: \beta_k = 0 \\
 H_a: \beta_k \neq 0
@@ -181,7 +188,7 @@ We reject $H_0$ if $T^* > t(1 - \alpha/2, n-p)$.
 
 Thankfully, the summary of our model does this test for us with the p-values. For the intercept, age, operational expenses, and square footage with respective p-values (< 2e-16, 3.89e-09, 2.75e-05, 1.98e-07), we reject $H_0$, concluding that the coefficients are significantly diffrerent than 0. However, for our Vacancy Rate, with p-value 0.57, we fail to reject $H_0$, leading us to conclude that Vacancy Rate does not help us predict Rental Rates. ALl other variables we conclude are useful in modeling Rental Rates. 
 
-2g.) 
+### g.) 
 ```{r}
 anova(model1)
 ```
@@ -218,7 +225,7 @@ pf(Fstar, 4, 76, lower.tail = FALSE)
 
 Since our p-value is much smaller than our $\alpha = 0.01$, we reject our null hypothesis. We can conclude that not all the $\beta_ks$ equal zero. 
 
-h.) 
+### h.) 
 ```{r}
 model2 <- lm(Ren.Rate ~ Age + Exp + Sq.Foot, data = property)
 model2$coefficients
@@ -236,7 +243,7 @@ anova(model2)
 ```
 The value of $R^2 = 0.583$ and the $R^2_{adj} = 0.5667$. The $MSE = 1.281$. 
 
-i.) 
+### i.) 
 ```{r}
 sumModel1 <- summary(model1)
 sumModel2 <- summary(model2)
@@ -260,7 +267,7 @@ t(
 )
 ```
 
-j.) 
+### j.) 
 ```{r}
 # Prediction for model 1
 predict(model1, data.frame(Age = 4, Exp = 10, Vac.Rate = 0.1, Sq.Foot = 80,000), interval = "prediction", level = 0.99)
@@ -277,4 +284,5 @@ predict(model2, data.frame(Age = 4, Exp = 10, Sq.Foot = 80,000), interval = "pre
 
 We can see that the interval for model2 is slightly more narrow than than the interval for model1. 
 
-k.) Overall, we would prefer to use model 2. We have a lower MSE, statistically signifanct predictors for every variable in the model, and higher $R^2_{adj}$ value. A model with less variables is also easier to interpret.  
+### k.) 
+Overall, we would prefer to use model 2. We have a lower MSE, statistically signifanct predictors for every variable in the model, and higher $R^2_{adj}$ value. A model with less variables is also easier to interpret.  
