@@ -3,9 +3,10 @@ title: "Homework 6"
 author: "Gianni Spiga"
 date: '2022-11-08'
 output: 
-  prettydoc::html_pretty:
-    theme: leonids
+  html_document:
+    theme: flatly
     toc: TRUE
+    toc_float: TRUE
     df_print: paged
 ---
 
@@ -15,11 +16,18 @@ output:
 True, if the response variable has correlation 0 with all the predictor variables, then the only predictor would be the intercept, with slope 0. In the simple linear regression case, this would be a horizontal line going through the data
 
 ### b.) 
+True, even if predictor variables are perfectly correlated, the model can still be a good fit for the data. Thinking geometrically, the $dim(X) <p$ in the case of multicollineairty. However, since the space exists, we can still fit the data. 
+
+### c.)
+True, because linear transformations have no effect on our ANOVA table, thus not changing our coefficients of multiple determination. 
+
+### d.)
+True, since the p-1 t-tests are not equivalent to testing whether there is a regression relation between Y and the set of X variables (as tested by the F test). When we have multicollinearity, this can be the case.
 
 ### e.) 
 True, we can have a large amount of variables that are uncorrelated with each other, which individually can be significant but create a not significant p-value as a whole. 
 
-
+### f.) 
 ```{r, message = FALSE}
 library(ggplot2)
 library(GGally)
@@ -80,19 +88,36 @@ We find that both the $R^2$ and $R^2_{adj}$ are higher in the quadratic model th
 **Model 2**. The $R^2$ for **Model 2** is $0.583$ and $0.6131$ for the quadratic model. The $R^2_{adj}$ for **Model 2** is $0.5667$ and $0.5927$ for the quadratic model. This would lead us to conclude that the quadratic model is a better fit than **Model 2**. 
 
 ### d.)
-To test our Beta coefficients, we have: 
+To test our full model versus our reduced model, we have: 
 $$
-H_0: \beta_k = 0 \\
-H_a: \beta_k \neq 0
+H_0: \beta_j = 0\ \text{for all} \ j\in \mathbf J\\ 
+H_a: \text{not all} \ \beta_j: \ j\in \mathbf J\\
 $$
 With test statistic and null distribution:
 $$
-T^* = \frac{\hat{\beta_k}}{s(\hat{\beta_k})} \\
-T^* \sim t_{n-p}
+F^* = \frac{\frac{SSE(R)-SSE(F)}{df_R - df_F}}{\frac{SSE(F)}{df_F}} \\
+F^* \sim F_{(1- \alpha, df_R - df_F, df_F)}
 $$
 
-We reject $H_0$ if $T^* > t(1 - \alpha/2, n-p)$.
+We reject $H_0$ if $F^* > F_{(1- \alpha, df_R - df_F, df_F)})$.
 
-Given that our p-value for our quadratic term is $0.0174$, we reject $H_0$ and conclude that our quadratic term is significant in the model at $\alpha = 0.05$. 
+
+```{r}
+#Find crtical value
+qf(1 - 0.05, 77-76, 77)
+
+anova(polyModel, model2)
+```
+Given that our value for our $F^*$ is $5.9078$, we reject $H_0$ and conclude that our quadratic term is significant in the model at $\alpha = 0.05$. 
 
 ### e.) 
+```{r}
+#Our prediction for model 2
+predict(model2, data.frame(Age = 4, Exp = 10, Sq.Foot = 80000), interval = "prediction", level = 0.99)
+
+
+# Our prediction for quadratic model 
+predict(polyModel, data.frame(AgeCent = 4, AgeSq = 16, Exp = 10, Sq.Foot = 80000), interval = "prediction", level = 0.99)
+```
+
+We can see that when we predict with a quadratic model, we get a lower valued interval than that of the prediction with **Model 2**. 
