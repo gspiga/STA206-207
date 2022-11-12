@@ -8,8 +8,6 @@ output:
   word_document: default
 ---
 
-
-
 **Instructions**:  <br>
 
 * In this quiz, you will be asked to perform some  tasks in R <br>
