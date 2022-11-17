@@ -1,0 +1,63 @@
+---
+title: "Homework 7"
+author: "Gianni Spiga"
+date: '2022-11-17'
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    df_print: paged
+---
+
+## Question 2
+
+### a.) 
+```{r}
+cars <- read.csv("Cars.csv")
+cars
+```
+### b.)
+```{r}
+# Fixing horsepower column
+cars$horsepower <- as.numeric(cars$horsepower)
+
+# Find index of NA rows
+NArows <- which(is.na(cars))
+
+# View rows
+cars[NArows,]
+```
+
+### c.) 
+```{r}
+str(cars)
+```
+
+We should treat the variables "cylinders" and "country.code" as categorical variables. The rest of the variables should be treated as quantitative variables. 
+
+```{r}
+cars$cylinders <- as.factor(cars$cylinders)
+cars$country.code <- as.factor(cars$country.code)
+```
+
+### d.) 
+```{r}
+library(ggplot2)
+# MPG
+ggplot(data = cars, aes(x = mpg)) + geom_histogram(bins = 15)
+
+#Displacement
+ggplot(data = cars, aes(x = displacement)) + geom_histogram(bins = 10)
+
+# Horsepower
+ggplot(data = cars, aes(x = horsepower))+ geom_histogram(bins = 20)
+
+# Weight
+ggplot(data = cars, aes(x = weight)) + geom_histogram()
+
+# Acceleration
+ggplot(data = cars, aes(x = acceleration)) + geom_histogram()
+```
+
+From the histograms we notice the following: is slightly right skewed, displacement is heavily right skewed, horsepower and weight is moderately right skewed, and acceleration is approximately normal. 
