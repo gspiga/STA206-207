@@ -61,3 +61,78 @@ ggplot(data = cars, aes(x = acceleration)) + geom_histogram()
 ```
 
 From the histograms we notice the following: is slightly right skewed, displacement is heavily right skewed, horsepower and weight is moderately right skewed, and acceleration is approximately normal. 
+
+### e.) 
+```{r, message = F, warning = F}
+library(GGally)
+ggpairs(cars[,c(1, 3, 4, 5, 6)], title = "Correlogram of Cars Data")
+```
+
+We can see from the scatter plot matrix that we face multicollinearity with predictors in this data. The variable mpg, displacement, horsepower, and weight are all highly correlated with each other, with the highest being the correlation between displacement and weight with a correlation of $0.933$. 
+
+### f.)
+```{r}
+library(plotly)
+fig1 <-
+  plot_ly(
+    data = data.frame(table(cars$cylinders)),
+    labels = ~ Var1,
+    values = ~ Freq,
+    type = 'pie'
+  )
+fig1 <-
+  fig1 %>% layout(
+    title = "Number of Cylinders",
+    xaxis = list(
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showticklabels = FALSE
+    ),
+    yaxis = list(
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showticklabels = FALSE
+    )
+  )
+fig1
+
+fig2 <-
+  plot_ly(
+    data = data.frame(table(cars$country.code)),
+    labels = ~ Var1,
+    values = ~ Freq,
+    type = 'pie'
+  )
+fig2 <-
+  fig2 %>% layout(
+    title = "Pie Chart of Country Code",
+    xaxis = list(
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showticklabels = FALSE
+    ),
+    yaxis = list(
+      showgrid = FALSE,
+      zeroline = FALSE,
+      showticklabels = FALSE
+    )
+  )
+fig2
+```
+
+### g.) 
+```{r}
+ggplot(data = cars, aes(x = cylinders, y = mpg, fill = country.code)) + geom_boxplot()
+```
+
+We can seet that only cylinder options that were available in all three countries were 4 cylinders and 6 cylinders. Some countries only had one cylinder option. Four cylinder cars performed, on average, the best in miles per gallon, regardless of the country. Eight cylinder cars had the worse mpg performance. Four cylinder cars in country code 3 performed the best of all other categories on average. 
+
+## Question 3
+
+### a.) 
+```{r}
+library(MASS)
+boxcox(mpg ~ cylinders + weight + horsepower + weight, data = cars)
+
+```
+
