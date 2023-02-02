@@ -137,10 +137,68 @@ Y_{i,j}=\mu + \alpha_i+ \epsilon_{i,j}, \ j=1,\ldots, n_i, i =1,\ldots, r,
 \end{equation}
 where $\{ \alpha_i\}$ satisfies that $\sum_{i} n_i \alpha_i=0$ and $\{\epsilon_{i,j}\}$ are i.i.d. $N(0,\sigma^2)$.  For the above model, write down the loss function associated with least squares, denoted as $L_1(\mu,\alpha)$, and write down the log-likelihood, denoted as $L_2(\mu,\alpha)$.
 
+The loss function for the above model would be the following:
+$$
+L_1(\mu,\alpha)  = \sum_{i=1}^r \sum_{j=1}^{n_i} \big(Y_{ij}-\bar{Y}_{i \cdot}\big)^2
+$$
+The Log Likelihood function would be the following, beginning with the likelihood function, taking the log, and then further simplifying. 
+
+$$
+\begin{align*}
+l_2(\mu,\alpha,\sigma) &= \prod_{i=1}^r \prod_{j=1}^{n_i} \frac{1}{\sqrt{2\pi \sigma^2} } \exp\left[-\frac{ (Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2}\right] \\ 
+
+l_2(\mu,\alpha,\sigma) &=  \left\{ (\frac{1}{2\pi \sigma^2})^{n/2} \exp\left[-\frac{ \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2} \right]  \right\} \\ 
+
+L_2(\mu,\alpha,\sigma) &= \log\left\{ (\frac{1}{2\pi \sigma^2})^{-n/2} \exp\left[-\frac{ \sum_{i=1}^r \sum_{j=1}^{n_i} (Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2} \right]  \right\} \\ 
+
+L_2(\mu,\alpha,\sigma) &= \log\left\{(\frac{1}{2\pi \sigma^2})^{-n/2} \right\}  + \log\left\{\exp\left[-\frac{ \sum_{i=1}^r \sum_{j=1}^{n_i} (Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2} \right]  \right\} \\
+
+L_2(\mu,\alpha,\sigma) &= -\frac{n}{2}\log(2\pi \sigma^2) - \frac{1}{2\sigma^2}\left[ \sum_{i=1}^r \sum_{j=1}^{n_i} (Y_{i,j} - \mu-\alpha_i)^2 \right] \\
+
+L_2(\mu,\alpha,\sigma) &= -\frac{n}{2}\log(2\pi) -\frac{n}{2}\log(\sigma^2) - \frac{1}{2\sigma^2}\left[ \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} - \mu-\alpha_i)^2 \right] \\
+
+\end{align*}
+$$
+
 ***
 
-(9) Find the maximum likelihood estimator of $\mu$ and $\alpha$ using the log-likelihood $L_2(\mu,\alpha)$ in Question 8. 
+(9) Find the maximum likelihood estimator of $\mu$ and $\alpha$ using the log-likelihood $L_2(\mu,\alpha)$ in Question 8.
 
+We find the derivative with respect to each variable, set to zero, and solve. First we will find the MLE for $\mu$.
+
+$$
+\begin{align*}
+\frac{\partial L_2}{\partial \mu} L_2(\mu,\alpha,\sigma) &=  \frac{1}{\sigma^2}\sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} - \mu-\alpha_i) \\
+
+0 &=  \frac{1}{\sigma^2}\left[\sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} -\alpha_i) - nr\mu \right] \\
+
+0 &=  \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} -\alpha_i) - nr\mu \\
+
+\mu_{MLE} &=  \frac{\sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} -\alpha_i)}{nr} \\
+\end{align*}
+$$
+
+We do the same for $\alpha$, provided the constant $\sum_{i} n_i \alpha_i=0$.
+
+$$
+\begin{align*}
+\frac{\partial L_2}{\partial \alpha} L_2(\mu,\alpha,\sigma) &=  \frac{1}{\sigma^2}\sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} - \mu-\alpha_i) \\
+
+0 &= \frac{1}{\sigma^2}\left[\sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} -\alpha_i) - n\mu \right] \\
+
+0 &= \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j}) - (n \sum_{i=1}^r\alpha_i) - nr\mu \\
+\end{align*}
+$$
+
+Let $\sum_{i}^r \alpha_i=\alpha$.
+
+$$
+\begin{align*}
+0 &= \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j}) - (n\alpha) - nr\mu \\
+n\alpha &= \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j}) - nr\mu \\
+\alpha_{MLE} &= \frac{\sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j})}{n} - r\mu \\
+\end{align*}
+$$
 
 ## Acknowledgement {-}
 
