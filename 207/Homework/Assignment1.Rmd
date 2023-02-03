@@ -43,7 +43,16 @@ $$
 \hat{\alpha} = \hat{\mu_i} - \mu_i \\
 E(\hat{\alpha_i}) = \mu_i - \mu = \alpha_i \\ 
 Var(\hat{\alpha_i}) = Var(\hat{\mu_i} - \hat{\mu}) = Var(\bar{Y}_{i.} - \bar{Y}_{..}) = (\frac{1}{n_i} - \frac{1}{N})\sigma^2 \\
+Var(\hat{\alpha_i}) = Var(\hat{\mu}_i-\hat{\mu}) = Var(\bar{Y}_{i.} - \bar{Y}_{..}) = Var(\bar{Y}_i-\frac{ \Sigma_{s=1}^{k}n_s\bar{Y}_s}{N}Var((1-\frac{n_i}{N}\bar{Y}_i-\frac{\Sigma_{s\ne{i}}n_s\bar{Y}_s}{N}) \\
 $$
+$$
+\hat{\alpha}_i = \hat{\mu}_i - \hat{\mu} = \bar{Y}_{i.} - \bar{Y}_{..}$$
+$$E(\hat{\alpha}_i) = E(\hat{\mu}_i-\hat{\mu})= \mu_i - \mu = \alpha_i$$
+
+$$Var(\hat{\alpha_i}) = Var(\hat{\mu}_i-\hat{\mu}) = Var(\bar{Y}_{i.} - \bar{Y}_{..}) = Var(\bar{Y}_i-\frac{ \Sigma_{s=1}^{k}n_s\bar{Y}_s}{N}Var((1-\frac{n_i}{N}\bar{Y}_i-\frac{\Sigma_{s\ne{i}}n_s\bar{Y}_s}{N})$$
+$$= (1-\frac{n_i}{N})^2)Var(\bar{Y_i}) + \sum_{s\ne{i}}\frac{n_s^2}{N^2}Var(\bar{Y}_s)$$
+$$= (1-\frac{n_i}{N})^2\frac{\sigma^2}{n_i}+\sum_{s\ne{i}}\frac{n_s^2}{N^2}\frac{\sigma^2}{n_s}$$
+$$= (\frac{1}{n_i} - \frac{1}{N}\sigma^2)$$
 
 *** 
 
@@ -147,7 +156,7 @@ $$
 \begin{align*}
 l_2(\mu,\alpha,\sigma) &= \prod_{i=1}^r \prod_{j=1}^{n_i} \frac{1}{\sqrt{2\pi \sigma^2} } \exp\left[-\frac{ (Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2}\right] \\ 
 
-l_2(\mu,\alpha,\sigma) &=  \left\{ (\frac{1}{2\pi \sigma^2})^{n/2} \exp\left[-\frac{ \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2} \right]  \right\} \\ 
+l_2(\mu,\alpha,\sigma) &=  \left\{ (\frac{1}{2\pi \sigma^2})^{-n/2} \exp\left[-\frac{ \sum_{i=1}^r \sum_{j=1}^{n_i}(Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2} \right]  \right\} \\ 
 
 L_2(\mu,\alpha,\sigma) &= \log\left\{ (\frac{1}{2\pi \sigma^2})^{-n/2} \exp\left[-\frac{ \sum_{i=1}^r \sum_{j=1}^{n_i} (Y_{i,j} - \mu-\alpha_i)^2}{2\sigma^2} \right]  \right\} \\ 
 
