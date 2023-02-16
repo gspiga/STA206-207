@@ -172,9 +172,9 @@ star.sch.red <- star.sum.sch[!(
     star.sum.sch$g1schid  == 244796 | star.sum.sch$g1schid  == 244839
 ), ]
 
-table(star.sch.red$g1classtype)
-unique(star.sch.red$g1schid)
-star.sch.red[star.sch.red$g1schid == "244736",]
+#table(star.sch.red$g1classtype)
+#unique(star.sch.red$g1schid)
+#[star.sch.red$g1schid == "244736",]
 ```
 
 
@@ -308,7 +308,9 @@ $$
 H_0: \text{The variances are equal} \\
 H_a: \text{The variances are not equal}
 $$
+### Model Using Mean
 
+We first observe our plot, which shows a very promising, equally dispersed scatter. The red line in the center depicts that there is no pattern in the residuals, almost tracing the $x=0$ line. We do however notice some familiar outliers from before, observations, specifically 253 and 172. Our Brown Forsythe test however, tells us we have a violation of homoscedasticity, returning a p-value much less than $\alpha = 0.05$, leading us to reject our null hypothesis. We move to our next model. 
 ```{r, echo = F, out.width = "80%"}
 # Checking mean 
 
@@ -320,7 +322,7 @@ leveneTest(mean ~ g1classtype * g1schid, data = star.sum.sch)
 
 # Checking median
 # by plot
-plot(redmod.med, which = 3)
+plot(redmod.med, which = 1)
 
 # Checking with BF test, not Bartlett since we have small departures from normality
 leveneTest(median ~ g1classtype * g1schid, data = star.sum.sch)
