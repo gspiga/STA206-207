@@ -1,0 +1,224 @@
+---
+title: "Spike Analysis of Mice Visual Stimuli"
+author: "Gianni Spiga"
+date: "March 5, 2023"
+output:
+  html_document:
+    df_print: paged
+    number_sections: yes
+    
+---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H')
+```
+
+***
+
+Note: 
+
+
+- You may use other templates or formats that you are comfortable with. 
+
+- **Remove these remarks in your submission.**
+
+***
+
+# Abstract 
+
+<span style='color:blue'> 
+A (very) short summary of the report. As an example, you can simply write one sentence for each section in the report. 
+</span>
+
+
+
+# Introduction
+
+<span style='color:blue'> In this section, state the questions of interest, motivation of this analysis, and potential impact of your results. You can simply rephrase the Project Description for minimal efforts. You can also cite published papers or credible articles on the Internet. For instance, you may find  [this brief](https://eric.ed.gov/?id=ED540485) very relevant. More can be found by searching the key words "class size", "education", "performance." See, among others,[here](https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/in_text_citations_the_basics.html) for proper citation formats.   </span>
+ 
+# Background 
+
+<span style='color:blue'> In this section, explain the source of data, target population, sampling mechanism, and variables in this data set. You can briefly review  existing research or known results, which will help you in the analysis. You can find the data set from many sources, e.g.,  [the AER package](https://www.rdocumentation.org/packages/AER/versions/1.2-9/topics/STAR), [Harvard dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=hdl:1902.1/10766). Both links provides information about this dataset. There are different challenges using data from these two sources (see descriptive analysis).
+
+[The brief](https://eric.ed.gov/?id=ED540485) mentions in previous section is also a good reference to read. You can find more by searching the key word "Project STAR" in, e.g.,  [Google scholar](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=Project+STAR&btnG=).
+</span> 
+
+```{r}
+ses1 <- readRDS("./Data/session1.rds")
+ses2 <- readRDS("./Data/session2.rds")
+ses3 <- readRDS("./Data/session3.rds")
+ses4 <- readRDS("./Data/session4.rds")
+ses5 <- readRDS("./Data/session5.rds")
+
+
+session=list()
+for(i in 1:5){
+  session[[i]]=readRDS(paste('./Data/session',i,'.rds',sep=''))
+  print(session[[i]]$mouse_name)
+  print(session[[i]]$date_exp)
+}
+
+
+id=11
+session[[5]]$feedback_type[id]
+session[[5]]$contrast_left[id]
+session[[5]]$contrast_right[id]
+length(session[[1]]$time[[id]])
+dim(session[[5]]$spks[[id]])
+
+ID=1
+t=0.4 # from Background 
+
+# Rows of contrast is quantity of trials (varying)
+# rows of spikes/times is quantity of neurons (varying)
+# columns of spikes/times is tracked sessions of brain (fixed)
+
+n.trials=length(session[[ID]]$spks)
+# Number of nuerons is the rows of spikes. which varies 
+n.neurons=dim(session[[ID]]$spks[[1]])[1]
+
+# Obtain the firing rate 
+firingrate=numeric(n.trials)
+for(i in 1:n.trials){
+  firingrate[i]=sum(session[[ID]]$spks[[i]])/n.neurons/t
+}
+firingrate
+
+firingrate <- c()
+total.fire.rate <- sapply(1:5, function(i)
+  sapply(1:length(session[[i]]$spks), function(j)
+    firingrate = c(firingrate, sum(session[[i]]$spks[[j]]) / dim(session[[i]]$spks[[j]])[1] / t)))
+
+# Flatten the list of lists
+rates.flat <- (unlist(total.fire.rate))
+mice <- data.frame("Firing.Rate" = rates.flat)
+
+# Now create dataframe to join with session as a variable as well
+contrast.dat <- data.frame()
+abc <- sapply(1:5, function(i)
+  cbind(
+    session[[i]]$contrast_left,
+    session[[i]]$contrast_right,
+    session[[i]]$feedback_type,
+    rep(i, length(session[[i]]$contrast_left))
+  ))
+contrast.dat <- do.call(rbind, abc)
+
+# Merge data.frames
+mice <- cbind(mice, contrast.dat)
+colnames(mice) <-
+  c("Firing.Rate", "C.Left", "C.Right", "Feedback_Type", "Session")
+
+# Convert mice Session into factor
+cols2fac <- c("C.Left", "C.Right", "Feedback_Type", "Session")
+mice[cols2fac] <- lapply(mice[cols2fac], factor)
+mice
+```
+
+
+# Descriptive analysis 
+
+<span style='color:blue'> 
+Select the variables you find relevant based on your understanding in the Background section. Summarize univariate descriptive statistics for the selected variables (mean, standard deviations, missing values,  quantiles, etc.). You can create the table using functions in base `R`, or use packages (see, e.g., [this note](https://cran.r-project.org/web/packages/qwraps2/vignettes/summary-statistics.html)). </span>
+
+
+- Choose the summary measure to be used. Your options are the mean, median, quantiles, etc. Be sure to justify your choice. 
+- Calculate this summary measure for each teacher. You may find the  `summarise()` function helpful ([link](https://dplyr.tidyverse.org/reference/summarise.html)). 
+
+
+```{r}
+library(ggplot2)
+library(plotly)
+
+# Create Histograms, 
+# separated by Session
+ggplotly(ggplot(mice, aes(x = Firing.Rate, fill = Session)) + geom_histogram(bins = 22, alpha = 0.8))
+
+# Separated by Feedback Type
+ggplotly(ggplot(mice, aes(x = Firing.Rate, fill = Feedback_Type)) + geom_histogram(bins = 22, alpha = 0.8))
+
+# Box Plots 
+# For Left Contrast
+ggplot(mice, aes(x = C.Left, y= Firing.Rate, fill = C.Left)) + geom_boxplot()
+# Right Contrast
+ggplot(mice, aes(x = C.Right, y= Firing.Rate, fill = C.Right)) + geom_boxplot()
+```
+
+# Inferential analysis 
+
+
+<span style="color:blue">
+We can define a two-way ANOVA model as follows 
+$Y_{ijk} = \mu_{..} + \alpha_{i} + \beta_{j} + \epsilon_{ijk}$, where the index $i$ represents the class type: small ($i=1$), regular ($i=2$), regular with aide ($i=3$), and the index $j$ represents the school indicator. You need to explain the rest of the parameters, state constraints on the parameters, and justify the choice of model (e.g., why no interaction terms).  
+</span>
+
+
+<span style="color:blue">
+State the assumptions on your proposed model.
+</span>
+
+
+<span style="color:blue">
+Fit the model on the Project STAR data and report the fitted results with some attention on how/whether to report the estimated coefficients for school IDs. 
+</span>
+
+
+<span style="color:blue">
+State the hypotheses to test. Please be sure specify the significance level and interpret your test result.  Explain any additional assumptions involved in this test. 
+</span>
+
+
+<span style='color:blue'>
+For the secondary question of interest, one option is the Tukey's range test ( [link](https://en.wikipedia.org/wiki/Tukey%27s_range_test)). You can employ other testing procedure as well.
+Again, specify the significance level, interpret your test result, and explain any additional assumptions involved in this test.  
+</span> 
+
+# Sensitivity analysis 
+
+
+- <span style='color:blue'> Examine the residual plot of the fitted model.  You need to explain your findings in these plots (e.g., whether assumptions are plausible). </span>
+
+- <span style='color:blue'>  You can find tests for some assumptions by searching the key words "test" and the corresponding assumptions. 
+
+- <span style='color:blue'>  For alternative methods, you can explore 
+  - other summary measures (say, median instead of mean)
+  - or nonparametric approach and check if your answers to the questions of interest change. 
+</span>
+
+
+# Discussion 
+
+<span style='color:blue'> 
+Conclude your analysis in this section. You can touch on the following topics. 
+</span> 
+
+- A brief recap of this project. 
+- Findings in the inferential analysis interpreted in the context of Project STAR. 
+- Suggestions for future research and/or policy making given your findings. 
+- Caveats of the current analysis.
+
+# Predictive Modeling
+
+# Acknowledgement {-}
+
+<span style='color:blue'>
+By default, it is assumed that you have discussed this project with your teammates and instructors. List any other people that you have discussed this project with. 
+</span>
+
+# Reference {-}
+
+<span style='color:blue'>
+List any references you cited in the report. See [here](https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/in_text_citations_the_basics.html) for the APA format, as an example: 
+</span> 
+
+Imbens, G., & Rubin, D. (2015). Stratified Randomized Experiments. In Causal Inference for Statistics, Social, and Biomedical Sciences: An Introduction (pp. 187-218). Cambridge: Cambridge University Press. doi:10.1017/CBO9781139025751.010
+
+# Session info {-}
+
+<span style='color:blue'>
+Report information of your `R` session for reproducibility. 
+</span> 
+
+
+```{r}
+sessionInfo()
+```
