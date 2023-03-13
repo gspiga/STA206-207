@@ -5,23 +5,21 @@ date: "March 5, 2023"
 output:
   html_document:
     df_print: paged
+    toc: true
+    toc_float: true
     number_sections: yes
+    theme: flatly
+    code_folding: hide
     
 ---
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.pos = 'H')
 ```
 
-***
-
-Note: 
-
-
-- You may use other templates or formats that you are comfortable with. 
-
-- **Remove these remarks in your submission.**
-
-***
+```{r, messsage = F, warning = F, include = F}
+library(ggplot2)
+library(plotly) 
+```
 
 # Abstract 
 
@@ -33,16 +31,13 @@ A (very) short summary of the report. As an example, you can simply write one se
 
 # Introduction
 
-<span style='color:blue'> In this section, state the questions of interest, motivation of this analysis, and potential impact of your results. You can simply rephrase the Project Description for minimal efforts. You can also cite published papers or credible articles on the Internet. For instance, you may find  [this brief](https://eric.ed.gov/?id=ED540485) very relevant. More can be found by searching the key words "class size", "education", "performance." See, among others,[here](https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/in_text_citations_the_basics.html) for proper citation formats.   </span>
+The scale of complexity a a human brain has over that of a mouse is well known among neuroscientists. The structure of a mouse brain is very similar in structure and function to a human brain, thus making them an interest of study in neurological testing. In this analysis, we look at data from a recent experiment by Steinmetz et al. (2019) which observed the activity of neurons in the visual cortex of mice when presented with stimuli. Following this, the mice were required to make a decision, using a wheel which was controlled by their forepaws. Their decision foretold whether they recieved an award or a penalty.
  
 # Background 
 
-<span style='color:blue'> In this section, explain the source of data, target population, sampling mechanism, and variables in this data set. You can briefly review  existing research or known results, which will help you in the analysis. You can find the data set from many sources, e.g.,  [the AER package](https://www.rdocumentation.org/packages/AER/versions/1.2-9/topics/STAR), [Harvard dataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=hdl:1902.1/10766). Both links provides information about this dataset. There are different challenges using data from these two sources (see descriptive analysis).
+The data set we will be using only looks at two of the ten mice in the study, Cori and Forssmann from mid-December 2016 to early November 2017. Both mice had varying number of trials, with 39 tracked times for each trial. Since these five sessions have varying amounts of trials, we look for a way to minimize the data from these five sessions into one long data set. To do this, we first must create an accurate response variable for our model, one that we can compare imbalanced trials between sessions. We choose to compare the mean firing rates for each trial in each session. This measure would be the average number of spikes per seconds across all neurons measuring within a 0.4 second interval. The choice of 0.4 seconds as our interval is by design of the experiment, which focused on spike trains of neurons from the presenting of the stimuli to 0.4 seconds after. The resulting data frame, from the five merged sessions, is shown below. We have a data set of 1196 trials, spanning across the 5 sessions, with the mean firing rate, the left and right contrasts, feedback type, and an ID column for which session the trial came from. 
 
-[The brief](https://eric.ed.gov/?id=ED540485) mentions in previous section is also a good reference to read. You can find more by searching the key word "Project STAR" in, e.g.,  [Google scholar](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=Project+STAR&btnG=).
-</span> 
-
-```{r}
+```{r, message = F}
 ses1 <- readRDS("./Data/session1.rds")
 ses2 <- readRDS("./Data/session2.rds")
 ses3 <- readRDS("./Data/session3.rds")
@@ -53,35 +48,35 @@ ses5 <- readRDS("./Data/session5.rds")
 session=list()
 for(i in 1:5){
   session[[i]]=readRDS(paste('./Data/session',i,'.rds',sep=''))
-  print(session[[i]]$mouse_name)
-  print(session[[i]]$date_exp)
+  #print(session[[i]]$mouse_name)
+  #print(session[[i]]$date_exp)
 }
 
 
-id=11
-session[[5]]$feedback_type[id]
-session[[5]]$contrast_left[id]
-session[[5]]$contrast_right[id]
-length(session[[1]]$time[[id]])
-dim(session[[5]]$spks[[id]])
+# id=11
+# session[[5]]$feedback_type[id]
+# session[[5]]$contrast_left[id]
+# session[[5]]$contrast_right[id]
+# length(session[[1]]$time[[id]])
+# dim(session[[5]]$spks[[id]])
 
-ID=1
+#ID=1
 t=0.4 # from Background 
 
 # Rows of contrast is quantity of trials (varying)
 # rows of spikes/times is quantity of neurons (varying)
 # columns of spikes/times is tracked sessions of brain (fixed)
-
-n.trials=length(session[[ID]]$spks)
-# Number of nuerons is the rows of spikes. which varies 
-n.neurons=dim(session[[ID]]$spks[[1]])[1]
-
-# Obtain the firing rate 
-firingrate=numeric(n.trials)
-for(i in 1:n.trials){
-  firingrate[i]=sum(session[[ID]]$spks[[i]])/n.neurons/t
-}
-firingrate
+# 
+# n.trials=length(session[[ID]]$spks)
+# # Number of nuerons is the rows of spikes. which varies 
+# n.neurons=dim(session[[ID]]$spks[[1]])[1]
+# 
+# # Obtain the firing rate 
+# firingrate=numeric(n.trials)
+# for(i in 1:n.trials){
+#   firingrate[i]=sum(session[[ID]]$spks[[i]])/n.neurons/t
+# }
+# firingrate
 
 firingrate <- c()
 total.fire.rate <- sapply(1:5, function(i)
@@ -122,13 +117,9 @@ Select the variables you find relevant based on your understanding in the Backgr
 
 
 - Choose the summary measure to be used. Your options are the mean, median, quantiles, etc. Be sure to justify your choice. 
-- Calculate this summary measure for each teacher. You may find the  `summarise()` function helpful ([link](https://dplyr.tidyverse.org/reference/summarise.html)). 
 
 
-```{r}
-library(ggplot2)
-library(plotly)
-
+```{r, warning = F, message = F}
 # Create Histograms, 
 # separated by Session
 ggplotly(ggplot(mice, aes(x = Firing.Rate, fill = Session)) + geom_histogram(bins = 22, alpha = 0.8))
@@ -146,43 +137,12 @@ ggplot(mice, aes(x = C.Right, y= Firing.Rate, fill = C.Right)) + geom_boxplot()
 # Inferential analysis 
 
 
-<span style="color:blue">
-We can define a two-way ANOVA model as follows 
-$Y_{ijk} = \mu_{..} + \alpha_{i} + \beta_{j} + \epsilon_{ijk}$, where the index $i$ represents the class type: small ($i=1$), regular ($i=2$), regular with aide ($i=3$), and the index $j$ represents the school indicator. You need to explain the rest of the parameters, state constraints on the parameters, and justify the choice of model (e.g., why no interaction terms).  
-</span>
 
-
-<span style="color:blue">
-State the assumptions on your proposed model.
-</span>
-
-
-<span style="color:blue">
-Fit the model on the Project STAR data and report the fitted results with some attention on how/whether to report the estimated coefficients for school IDs. 
-</span>
-
-
-<span style="color:blue">
-State the hypotheses to test. Please be sure specify the significance level and interpret your test result.  Explain any additional assumptions involved in this test. 
-</span>
-
-
-<span style='color:blue'>
-For the secondary question of interest, one option is the Tukey's range test ( [link](https://en.wikipedia.org/wiki/Tukey%27s_range_test)). You can employ other testing procedure as well.
-Again, specify the significance level, interpret your test result, and explain any additional assumptions involved in this test.  
-</span> 
 
 # Sensitivity analysis 
 
 
-- <span style='color:blue'> Examine the residual plot of the fitted model.  You need to explain your findings in these plots (e.g., whether assumptions are plausible). </span>
 
-- <span style='color:blue'>  You can find tests for some assumptions by searching the key words "test" and the corresponding assumptions. 
-
-- <span style='color:blue'>  For alternative methods, you can explore 
-  - other summary measures (say, median instead of mean)
-  - or nonparametric approach and check if your answers to the questions of interest change. 
-</span>
 
 
 # Discussion 
@@ -192,7 +152,6 @@ Conclude your analysis in this section. You can touch on the following topics.
 </span> 
 
 - A brief recap of this project. 
-- Findings in the inferential analysis interpreted in the context of Project STAR. 
 - Suggestions for future research and/or policy making given your findings. 
 - Caveats of the current analysis.
 
